@@ -212,6 +212,18 @@
     object-fit: contain;
   }
 
+  .brand-mark-dark {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .brand-mark-light {
+    display: none;
+  }
+
+  :root[data-theme="dark"] .brand-mark-dark {
+    display: block;
+  }
+
   .nav {
     display: flex;
     align-items: center;
