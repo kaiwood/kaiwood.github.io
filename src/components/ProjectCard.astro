@@ -3,6 +3,7 @@ interface Project {
   name: string;
   description: string;
   tags: string[];
+  repo: string;
   stars: number;
   icon: string;
   logo?: string;
@@ -28,6 +29,90 @@ const { project } = Astro.props;
     <div class="tag-list">
       {project.tags.map((tag) => <span class="tag">{tag}</span>)}
     </div>
-    <span class="stars">☆ {project.stars}</span>
+    <span
+      class="stars"
+      data-github-stars
+      data-repo={project.repo}
+      data-current-stars={project.stars}
+      aria-label={`${project.stars} GitHub stars`}
+    >
+      <span aria-hidden="true">☆</span>
+      <span class="star-count" data-star-count>{project.stars}</span>
+    </span>
   </footer>
 </article>
+
+<script>
+  const fetchStars = async (repo) => {
+    const response = await fetch(`https://api.github.com/repos/${repo}`, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`GitHub API returned ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    if (typeof data.stargazers_count !== "number") {
+      throw new Error("GitHub API response did not include stars");
+    }
+
+    return data.stargazers_count;
+  };
+
+  const easeOutCubic = (progress) => 1 - Math.pow(1 - progress, 3);
+
+  const animateStars = (element, targetStars) => {
+    const countElement = element.querySelector("[data-star-count]");
+
+    if (!(countElement instanceof HTMLElement)) return;
+
+    const startStars = Number(element.dataset.currentStars ?? countElement.textContent ?? "0");
+
+    if (!Number.isFinite(startStars) || startStars === targetStars) return;
+
+    const distance = Math.abs(targetStars - startStars);
+    const duration = Math.min(1400, Math.max(500, distance * 45));
+    const direction = targetStars > startStars ? 1 : -1;
+    let startTime;
+
+    element.classList.add("is-rolling");
+
+    const draw = (timestamp) => {
+      startTime ??= timestamp;
+      const progress = Math.min((timestamp - startTime) / duration, 1);
+      const eased = easeOutCubic(progress);
+      const nextValue = startStars + (targetStars - startStars) * eased;
+      const displayedStars = direction > 0 ? Math.floor(nextValue) : Math.ceil(nextValue);
+
+      countElement.textContent = String(displayedStars);
+
+      if (progress < 1) {
+        requestAnimationFrame(draw);
+        return;
+      }
+
+      countElement.textContent = String(targetStars);
+      element.dataset.currentStars = String(targetStars);
+      element.setAttribute("aria-label", `${targetStars} GitHub stars`);
+      element.classList.remove("is-rolling");
+    };
+
+    requestAnimationFrame(draw);
+  };
+
+  document.querySelectorAll("[data-github-stars]").forEach(async (element) => {
+    if (!(element instanceof HTMLElement)) return;
+
+    const repo = element.dataset.repo;
+    if (!repo) return;
+
+    try {
+      const stars = await fetchStars(repo);
+      animateStars(element, stars);
+    } catch {
+      // Keep the build-time/fallback count already rendered in the HTML.
+    }
+  });
+</script>

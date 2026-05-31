@@ -3,6 +3,14 @@ import BlogCard from "../components/BlogCard.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { posts, projects, stats } from "../data/site";
+import { fetchGithubStars } from "../lib/github";
+
+const featuredProjects = await Promise.all(
+  projects.map(async (project) => ({
+    ...project,
+    stars: await fetchGithubStars(project.repo, project.stars),
+  })),
+);
 ---
 
 <BaseLayout
@@ -57,7 +65,7 @@ import { posts, projects, stats } from "../data/site";
     </div>
 
     <div class="project-grid">
-      {projects.map((project) => <ProjectCard project={project} />)}
+      {featuredProjects.map((project) => <ProjectCard project={project} />)}
     </div>
   </section>
 

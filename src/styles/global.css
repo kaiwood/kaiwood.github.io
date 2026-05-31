@@ -508,10 +508,44 @@
   }
 
   .stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
     color: var(--text-muted);
     font-size: 0.85rem;
     font-weight: 800;
     white-space: nowrap;
+  }
+
+  .star-count {
+    display: inline-block;
+    min-width: 2ch;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-align: right;
+    transform-origin: 50% 55%;
+  }
+
+  .stars.is-rolling .star-count {
+    animation: star-count-roll 140ms steps(2, end) infinite;
+  }
+
+  @keyframes star-count-roll {
+    0% {
+      opacity: 0.72;
+      transform: translateY(-0.18em) rotateX(58deg);
+    }
+
+    50% {
+      opacity: 1;
+      transform: translateY(0) rotateX(0deg);
+    }
+
+    100% {
+      opacity: 0.72;
+      transform: translateY(0.18em) rotateX(-58deg);
+    }
   }
 
   .about-panel {
