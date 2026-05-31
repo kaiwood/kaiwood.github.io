@@ -2,10 +2,11 @@
 import BlogCard from "../components/BlogCard.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { posts, projects, statConfig } from "../data/site";
+import { projects, statConfig } from "../data/site";
+import { getBlogPosts } from "../lib/blog";
 import { fetchGithubPublicRepoCount, fetchGithubStars } from "../lib/github";
 
-const [featuredProjects, publicProjectCount] = await Promise.all([
+const [featuredProjects, publicProjectCount, posts] = await Promise.all([
   Promise.all(
     projects.map(async (project) => ({
       ...project,
@@ -13,6 +14,7 @@ const [featuredProjects, publicProjectCount] = await Promise.all([
     })),
   ),
   fetchGithubPublicRepoCount(statConfig.githubUsername, statConfig.projectFallbackCount),
+  getBlogPosts(),
 ]);
 
 const stats = [
@@ -167,7 +169,7 @@ const smokeParticles = Array.from({ length: 42 }, (_, index) => {
     </div>
 
     <div class="blog-list">
-      {posts.slice(0, 2).map((post) => <BlogCard post={post} />)}
+      {posts.length > 0 ? posts.slice(0, 2).map((post) => <BlogCard post={post} />) : <p class="card empty-state">No published posts yet. Check back soon.</p>}
     </div>
   </section>
 

@@ -1,9 +1,10 @@
 ---
 import BlogCard from "../components/BlogCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { posts } from "../data/site";
+import { getBlogPosts } from "../lib/blog";
 
-const filters = ["All", "Tutorials", "Tools", "Thoughts", "News"];
+const posts = await getBlogPosts();
+const filters = ["All", ...new Set(posts.map((post) => post.data.category))];
 ---
 
 <BaseLayout
@@ -19,17 +20,74 @@ const filters = ["All", "Tutorials", "Tools", "Thoughts", "News"];
       </div>
     </div>
 
-    <div class="blog-controls" aria-label="Blog controls">
-      <div class="filter-list" aria-label="Post categories">
-        {filters.map((filter, index) => (
-          <button class={`filter ${index === 0 ? "active" : ""}`} type="button">{filter}</button>
-        ))}
-      </div>
-      <input class="search" type="search" placeholder="Search posts..." aria-label="Search posts" />
-    </div>
+    {posts.length > 0 ? (
+      <>
+        <div class="blog-controls" data-blog-controls aria-label="Blog controls">
+          <div class="filter-list" aria-label="Post categories">
+            {filters.map((filter, index) => (
+              <button
+                class={`filter ${index === 0 ? "active" : ""}`}
+                type="button"
+                data-filter={filter}
+                aria-pressed={index === 0 ? "true" : "false"}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+          <input class="search" type="search" placeholder="Search posts..." aria-label="Search posts" data-blog-search />
+        </div>
 
-    <div class="blog-list">
-      {posts.map((post) => <BlogCard post={post} />)}
-    </div>
+        <div class="blog-list" data-blog-list>
+          {posts.map((post) => <BlogCard post={post} />)}
+        </div>
+
+        <p class="card empty-state" data-blog-no-results hidden>No posts match your filters.</p>
+      </>
+    ) : (
+      <p class="card empty-state">No published posts yet. Check back soon.</p>
+    )}
   </section>
+
+  <script>
+    const controls = document.querySelector<HTMLElement>("[data-blog-controls]");
+    const search = document.querySelector<HTMLInputElement>("[data-blog-search]");
+    const cards = Array.from(document.querySelectorAll<HTMLElement>("[data-post-card]"));
+    const noResults = document.querySelector<HTMLElement>("[data-blog-no-results]");
+    let activeFilter = "All";
+
+    const updatePosts = () => {
+      const query = search?.value.trim().toLowerCase() ?? "";
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const matchesFilter = activeFilter === "All" || card.dataset.category === activeFilter;
+        const matchesSearch = query.length === 0 || (card.dataset.search ?? "").includes(query);
+        const isVisible = matchesFilter && matchesSearch;
+
+        card.hidden = !isVisible;
+        if (isVisible) visibleCount += 1;
+      });
+
+      if (noResults) {
+        noResults.hidden = visibleCount > 0;
+      }
+    };
+
+    controls?.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((button) => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter ?? "All";
+
+        controls.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((filterButton) => {
+          const isActive = filterButton === button;
+          filterButton.classList.toggle("active", isActive);
+          filterButton.setAttribute("aria-pressed", String(isActive));
+        });
+
+        updatePosts();
+      });
+    });
+
+    search?.addEventListener("input", updatePosts);
+  </script>
 </BaseLayout>
