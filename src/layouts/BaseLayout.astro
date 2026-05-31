@@ -75,9 +75,7 @@ const {
           const bottom = Math.max(top, height - inset);
           const radius = Math.max(0, Math.min(borderRadius - inset, (right - left) / 2, (bottom - top) / 2));
           const d = [
-            `M ${left} ${bottom - radius}`,
-            `V ${top + radius}`,
-            `A ${radius} ${radius} 0 0 1 ${left + radius} ${top}`,
+            `M ${left + radius} ${top}`,
             `H ${right - radius}`,
           ].join(" ");
 
