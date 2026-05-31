@@ -59,8 +59,10 @@ const {
         const laserPaths = portraitLaser.querySelectorAll<SVGPathElement>("[data-portrait-laser-path]");
         let lastScrollY = window.scrollY;
         let wasInTriggerZone = false;
+        let hasCheckedInitialPosition = false;
         let hasPlayedLaser = false;
         let ticking = false;
+        let allowStationaryTrigger = false;
         let laserTimer: number | undefined;
 
         const syncLaserPath = () => {
@@ -108,28 +110,38 @@ const {
           const triggerLine = window.innerHeight * (2 / 3);
           const inTriggerZone = rect.top <= triggerLine && rect.bottom >= triggerLine;
 
-          if (scrollingDown && inTriggerZone && !wasInTriggerZone) {
+          if ((scrollingDown || allowStationaryTrigger || !hasCheckedInitialPosition) && inTriggerZone && !wasInTriggerZone) {
             playLaser();
           }
 
+          hasCheckedInitialPosition = true;
           wasInTriggerZone = inTriggerZone;
           lastScrollY = currentScrollY;
           ticking = false;
+          allowStationaryTrigger = false;
         };
 
-        const requestLaserUpdate = () => {
+        const requestLaserUpdate = (allowStationary = false) => {
+          allowStationaryTrigger = allowStationaryTrigger || allowStationary;
           if (ticking) return;
           ticking = true;
           window.requestAnimationFrame(updateLaserTrigger);
         };
 
+        const requestInitialLaserUpdate = () => {
+          requestLaserUpdate(true);
+          window.setTimeout(() => requestLaserUpdate(true), 120);
+        };
+
         syncLaserPath();
-        window.addEventListener("scroll", requestLaserUpdate, { passive: true });
+        window.addEventListener("scroll", () => requestLaserUpdate(), { passive: true });
+        window.addEventListener("load", requestInitialLaserUpdate);
+        window.addEventListener("pageshow", requestInitialLaserUpdate);
         window.addEventListener("resize", () => {
           syncLaserPath();
-          requestLaserUpdate();
+          requestLaserUpdate(true);
         });
-        requestLaserUpdate();
+        requestInitialLaserUpdate();
       }
     </script>
   </body>

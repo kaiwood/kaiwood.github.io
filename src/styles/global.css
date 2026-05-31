@@ -613,11 +613,11 @@
   }
 
   .portrait-laser.is-laser-active .portrait-laser-line {
-    animation: portrait-laser-trace 350ms cubic-bezier(0.35, 0, 0.82, 1);
+    animation: portrait-laser-trace 300ms cubic-bezier(0.35, 0, 0.82, 1);
   }
 
   .portrait-laser.is-laser-active .portrait-laser-glow {
-    animation: portrait-laser-trace-glow 350ms cubic-bezier(0.35, 0, 0.82, 1);
+    animation: portrait-laser-trace-glow 300ms cubic-bezier(0.35, 0, 0.82, 1);
   }
 
   @keyframes portrait-laser-trace {
@@ -710,7 +710,7 @@
 
   .portrait-laser.is-laser-active .portrait-smoke span {
     animation: portrait-smoke-rise 2400ms ease-out both;
-    animation-delay: calc(260ms + var(--smoke-delay));
+    animation-delay: calc(225ms + var(--smoke-delay));
   }
 
   @keyframes portrait-smoke-rise {
