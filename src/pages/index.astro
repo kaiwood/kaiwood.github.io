@@ -12,6 +12,21 @@ const featuredProjects = await Promise.all(
   })),
 );
 
+const digitSegments: Record<string, string[]> = {
+  "0": ["a", "b", "c", "d", "e", "f"],
+  "1": ["b", "c"],
+  "2": ["a", "b", "g", "e", "d"],
+  "3": ["a", "b", "c", "d", "g"],
+  "4": ["f", "g", "b", "c"],
+  "5": ["a", "f", "g", "c", "d"],
+  "6": ["a", "f", "g", "e", "c", "d"],
+  "7": ["a", "b", "c"],
+  "8": ["a", "b", "c", "d", "e", "f", "g"],
+  "9": ["a", "b", "c", "d", "f", "g"],
+};
+
+const digitSegmentNames = ["a", "b", "c", "d", "e", "f", "g"];
+
 const smokeParticles = Array.from({ length: 42 }, (_, index) => {
   const side = index % 2 === 0 ? -1 : 1;
   const size = [0.18, 0.26, 0.22, 0.3, 0.2, 0.34, 0.24][index % 7];
@@ -99,12 +114,35 @@ const smokeParticles = Array.from({ length: 42 }, (_, index) => {
         <a class="button" href="/#about">More about me →</a>
       </div>
       <div class="stats" aria-label="Developer stats">
-        {stats.map((stat) => (
-          <div class="stat">
-            <strong>{stat.value}</strong>
-            <span>{stat.label}</span>
-          </div>
-        ))}
+        {stats.map((stat) => {
+          const digits = stat.value.match(/\d/g) ?? [];
+          const suffix = stat.value.replace(/[\d\s]/g, "");
+
+          return (
+            <div class="stat">
+              <strong aria-label={stat.value}>
+                <span class="clock-digits" data-target={digits.join("")} aria-hidden="true">
+                  {digits.map((digit) => (
+                    <span class="clock-digit" data-digit={digit}>
+                      {digitSegmentNames.map((segment) => (
+                        <span
+                          class:list={[
+                            "clock-segment",
+                            `segment-${segment}`,
+                            { "is-active": digitSegments[digit]?.includes(segment) },
+                          ]}
+                          data-segment={segment}
+                        ></span>
+                      ))}
+                    </span>
+                  ))}
+                </span>
+                {suffix && <span class="stat-suffix" aria-hidden="true">{suffix}</span>}
+              </strong>
+              <span>{stat.label}</span>
+            </div>
+          );
+        })}
       </div>
     </div>
   </section>
@@ -122,4 +160,98 @@ const smokeParticles = Array.from({ length: 42 }, (_, index) => {
       {posts.slice(0, 2).map((post) => <BlogCard post={post} />)}
     </div>
   </section>
+
+  <script>
+    const statDigitSegments: Record<string, string[]> = {
+      "0": ["a", "b", "c", "d", "e", "f"],
+      "1": ["b", "c"],
+      "2": ["a", "b", "g", "e", "d"],
+      "3": ["a", "b", "c", "d", "g"],
+      "4": ["f", "g", "b", "c"],
+      "5": ["a", "f", "g", "c", "d"],
+      "6": ["a", "f", "g", "e", "c", "d"],
+      "7": ["a", "b", "c"],
+      "8": ["a", "b", "c", "d", "e", "f", "g"],
+      "9": ["a", "b", "c", "d", "f", "g"],
+    };
+
+    const reduceStatMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const renderStatDigit = (digitEl: HTMLElement, digit: string, shouldFlip: boolean) => {
+      if (digitEl.dataset.digit === digit) return;
+
+      const applyDigit = () => {
+        const activeSegments = new Set(statDigitSegments[digit] ?? []);
+
+        digitEl.dataset.digit = digit;
+        digitEl.querySelectorAll<HTMLElement>("[data-segment]").forEach((segmentEl) => {
+          segmentEl.classList.toggle("is-active", activeSegments.has(segmentEl.dataset.segment ?? ""));
+        });
+      };
+
+      if (!shouldFlip || reduceStatMotion) {
+        applyDigit();
+        return;
+      }
+
+      digitEl.classList.remove("is-flipping");
+      void digitEl.offsetWidth;
+      digitEl.classList.add("is-flipping");
+      window.setTimeout(applyDigit, 85);
+      window.setTimeout(() => digitEl.classList.remove("is-flipping"), 180);
+    };
+
+    const renderStatValue = (display: HTMLElement, value: number, shouldFlip: boolean) => {
+      const target = display.dataset.target ?? "0";
+      const digits = String(value).padStart(target.length, "0").slice(-target.length).split("");
+      const digitEls = display.querySelectorAll<HTMLElement>(".clock-digit");
+
+      digitEls.forEach((digitEl, index) => renderStatDigit(digitEl, digits[index] ?? "0", shouldFlip));
+    };
+
+    const animateStat = (display: HTMLElement) => {
+      const target = Number(display.dataset.target ?? 0);
+      if (!Number.isFinite(target)) return;
+
+      if (reduceStatMotion) {
+        renderStatValue(display, target, false);
+        return;
+      }
+
+      let current = 0;
+      const delay = Math.max(42, Math.min(90, 1450 / Math.max(target, 1)));
+
+      renderStatValue(display, current, false);
+
+      const tick = () => {
+        current += 1;
+        renderStatValue(display, current, true);
+
+        if (current < target) {
+          window.setTimeout(tick, delay);
+        }
+      };
+
+      window.setTimeout(tick, 220);
+    };
+
+    const statDisplays = document.querySelectorAll<HTMLElement>(".clock-digits[data-target]");
+
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            animateStat(entry.target as HTMLElement);
+            observer.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.45 },
+      );
+
+      statDisplays.forEach((display) => observer.observe(display));
+    } else {
+      statDisplays.forEach(animateStat);
+    }
+  </script>
 </BaseLayout>
