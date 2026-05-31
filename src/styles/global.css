@@ -556,13 +556,196 @@
     padding: 1.5rem;
   }
 
+  .portrait-laser {
+    position: relative;
+    display: block;
+    width: 100%;
+    border-radius: var(--radius-md);
+    isolation: isolate;
+  }
+
   .portrait {
+    position: relative;
+    z-index: 2;
     width: 100%;
     aspect-ratio: 1;
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     object-fit: cover;
     box-shadow: var(--shadow-card);
+  }
+
+  .portrait-laser-beam {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    overflow: visible;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .portrait-laser-line,
+  .portrait-laser-glow {
+    fill: none;
+    stroke: var(--accent);
+    stroke-dasharray: 0 1;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .portrait-laser-line {
+    stroke-width: 0.425;
+    filter:
+      drop-shadow(0 0 0.1rem var(--accent))
+      drop-shadow(0 0 0.26rem color-mix(in srgb, var(--accent) 72%, transparent));
+  }
+
+  .portrait-laser-glow {
+    opacity: 0.42;
+    stroke: color-mix(in srgb, var(--accent) 72%, transparent);
+    stroke-width: 1.75;
+    filter: blur(0.16rem);
+  }
+
+  .portrait-laser.is-laser-active .portrait-laser-beam {
+    opacity: 1;
+  }
+
+  .portrait-laser.is-laser-active .portrait-laser-line {
+    animation: portrait-laser-trace 350ms cubic-bezier(0.35, 0, 0.82, 1);
+  }
+
+  .portrait-laser.is-laser-active .portrait-laser-glow {
+    animation: portrait-laser-trace-glow 350ms cubic-bezier(0.35, 0, 0.82, 1);
+  }
+
+  @keyframes portrait-laser-trace {
+    0% {
+      opacity: 0;
+      stroke-dasharray: 0 1;
+      stroke-dashoffset: 0;
+    }
+
+    8% {
+      opacity: 1;
+      stroke-dasharray: 0.12 0.88;
+      stroke-dashoffset: 0;
+    }
+
+    78% {
+      opacity: 1;
+      stroke-dasharray: 0.12 0.88;
+      stroke-dashoffset: -0.88;
+    }
+
+    90% {
+      opacity: 1;
+      stroke-dasharray: 0.06 0.94;
+      stroke-dashoffset: -0.94;
+    }
+
+    100% {
+      opacity: 0;
+      stroke-dasharray: 0 1;
+      stroke-dashoffset: -1;
+    }
+  }
+
+  @keyframes portrait-laser-trace-glow {
+    0% {
+      opacity: 0;
+      stroke-dasharray: 0 1;
+      stroke-dashoffset: 0;
+    }
+
+    8% {
+      opacity: 0.5;
+      stroke-dasharray: 0.12 0.88;
+      stroke-dashoffset: 0;
+    }
+
+    78% {
+      opacity: 0.5;
+      stroke-dasharray: 0.12 0.88;
+      stroke-dashoffset: -0.88;
+    }
+
+    90% {
+      opacity: 0.42;
+      stroke-dasharray: 0.06 0.94;
+      stroke-dashoffset: -0.94;
+    }
+
+    100% {
+      opacity: 0;
+      stroke-dasharray: 0 1;
+      stroke-dashoffset: -1;
+    }
+  }
+
+  .portrait-smoke {
+    position: absolute;
+    top: var(--laser-end-y, 0);
+    left: var(--laser-end-x, calc(100% - var(--radius-md)));
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  .portrait-smoke span {
+    position: absolute;
+    width: var(--smoke-size, 0.24rem);
+    aspect-ratio: 1;
+    border-radius: 999px;
+    background: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--accent) 24%, white) 0 16%,
+      color-mix(in srgb, var(--text-muted) 48%, transparent) 58%,
+      transparent 74%
+    );
+    filter: blur(0.05rem);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+
+  .portrait-laser.is-laser-active .portrait-smoke span {
+    animation: portrait-smoke-rise 2400ms ease-out both;
+    animation-delay: calc(260ms + var(--smoke-delay));
+  }
+
+  @keyframes portrait-smoke-rise {
+    0% {
+      opacity: 0;
+      transform: translate(calc(-50% + var(--smoke-x)), -50%) scale(0.45);
+    }
+
+    14% {
+      opacity: 0.5;
+    }
+
+    62% {
+      opacity: 0.22;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translate(
+        calc(-50% + var(--smoke-x) + var(--smoke-drift)),
+        calc(-50% - var(--smoke-rise))
+      ) scale(3.2);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .portrait-laser.is-laser-active .portrait-laser-line,
+    .portrait-laser.is-laser-active .portrait-laser-glow {
+      animation-duration: 700ms;
+    }
+
+    .portrait-laser.is-laser-active .portrait-smoke span {
+      animation-duration: 900ms;
+      animation-delay: calc(170ms + var(--smoke-delay));
+    }
   }
 
   .about-copy {

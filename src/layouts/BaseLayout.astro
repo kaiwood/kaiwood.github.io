@@ -50,6 +50,89 @@ const {
         document.documentElement.dataset.theme = next;
         localStorage.setItem("theme", next);
       });
+
+      const portraitLaser = document.querySelector<HTMLElement>("[data-portrait-laser]");
+
+      if (portraitLaser) {
+        const portrait = portraitLaser.querySelector<HTMLElement>(".portrait");
+        const laserBeam = portraitLaser.querySelector<SVGSVGElement>("[data-portrait-laser-beam]");
+        const laserPaths = portraitLaser.querySelectorAll<SVGPathElement>("[data-portrait-laser-path]");
+        let lastScrollY = window.scrollY;
+        let wasInTriggerZone = false;
+        let hasPlayedLaser = false;
+        let ticking = false;
+        let laserTimer: number | undefined;
+
+        const syncLaserPath = () => {
+          if (!portrait || !laserBeam || laserPaths.length === 0) return;
+
+          const { width, height } = portrait.getBoundingClientRect();
+          const borderRadius = Number.parseFloat(getComputedStyle(portrait).borderTopLeftRadius) || 0;
+          const inset = 0.5;
+          const left = inset;
+          const top = inset;
+          const right = Math.max(left, width - inset);
+          const bottom = Math.max(top, height - inset);
+          const radius = Math.max(0, Math.min(borderRadius - inset, (right - left) / 2, (bottom - top) / 2));
+          const d = [
+            `M ${left} ${bottom - radius}`,
+            `V ${top + radius}`,
+            `A ${radius} ${radius} 0 0 1 ${left + radius} ${top}`,
+            `H ${right - radius}`,
+          ].join(" ");
+
+          portraitLaser.style.setProperty("--laser-end-x", `${right - radius}px`);
+          portraitLaser.style.setProperty("--laser-end-y", `${top}px`);
+          laserBeam.setAttribute("viewBox", `0 0 ${width} ${height}`);
+
+          laserPaths.forEach((path) => {
+            path.setAttribute("d", d);
+          });
+        };
+
+        const stopLaser = () => {
+          portraitLaser.classList.remove("is-laser-active");
+          window.clearTimeout(laserTimer);
+        };
+
+        const playLaser = () => {
+          if (hasPlayedLaser || portraitLaser.classList.contains("is-laser-active")) return;
+          hasPlayedLaser = true;
+          syncLaserPath();
+          portraitLaser.classList.add("is-laser-active");
+          laserTimer = window.setTimeout(stopLaser, 4300);
+        };
+
+        const updateLaserTrigger = () => {
+          const currentScrollY = window.scrollY;
+          const scrollingDown = currentScrollY > lastScrollY;
+          const rect = portraitLaser.getBoundingClientRect();
+          const triggerLine = window.innerHeight * (2 / 3);
+          const inTriggerZone = rect.top <= triggerLine && rect.bottom >= triggerLine;
+
+          if (scrollingDown && inTriggerZone && !wasInTriggerZone) {
+            playLaser();
+          }
+
+          wasInTriggerZone = inTriggerZone;
+          lastScrollY = currentScrollY;
+          ticking = false;
+        };
+
+        const requestLaserUpdate = () => {
+          if (ticking) return;
+          ticking = true;
+          window.requestAnimationFrame(updateLaserTrigger);
+        };
+
+        syncLaserPath();
+        window.addEventListener("scroll", requestLaserUpdate, { passive: true });
+        window.addEventListener("resize", () => {
+          syncLaserPath();
+          requestLaserUpdate();
+        });
+        requestLaserUpdate();
+      }
     </script>
   </body>
 </html>

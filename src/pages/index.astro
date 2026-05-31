@@ -11,6 +11,17 @@ const featuredProjects = await Promise.all(
     stars: await fetchGithubStars(project.repo, project.stars),
   })),
 );
+
+const smokeParticles = Array.from({ length: 42 }, (_, index) => {
+  const side = index % 2 === 0 ? -1 : 1;
+  const size = [0.18, 0.26, 0.22, 0.3, 0.2, 0.34, 0.24][index % 7];
+  const startX = ((index % 9) - 4) * 0.12;
+  const rise = [12.5, 15.8, 18.2, 14.6, 20.5, 16.9, 22][index % 7] + Math.floor(index / 7) * 0.3;
+  const drift = side * (1.2 + (index % 6) * 0.55);
+  const delay = (index % 14) * 58 + Math.floor(index / 14) * 42;
+
+  return `--smoke-size:${size}rem;--smoke-x:${startX}rem;--smoke-rise:${rise}rem;--smoke-drift:${drift}rem;--smoke-delay:${delay}ms;`;
+});
 ---
 
 <BaseLayout
@@ -71,7 +82,16 @@ const featuredProjects = await Promise.all(
 
   <section class="container section" id="about">
     <div class="card about-panel">
-      <img class="portrait" src="/images/avatar.png" alt="Portrait of Kai Wood" loading="lazy" />
+      <span class="portrait-laser" data-portrait-laser>
+        <img class="portrait" src="/images/avatar.png" alt="Portrait of Kai Wood" loading="lazy" />
+        <svg class="portrait-laser-beam" data-portrait-laser-beam aria-hidden="true">
+          <path class="portrait-laser-glow" data-portrait-laser-path pathLength="1"></path>
+          <path class="portrait-laser-line" data-portrait-laser-path pathLength="1"></path>
+        </svg>
+        <span class="portrait-smoke" aria-hidden="true">
+          {smokeParticles.map((style) => <span style={style}></span>)}
+        </span>
+      </span>
       <div class="about-copy">
         <h2>About Me</h2>
         <p>I’m a passionate developer who loves creating tools that improve the developer experience.</p>
