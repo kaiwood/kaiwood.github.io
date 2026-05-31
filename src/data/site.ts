@@ -57,8 +57,8 @@ export const posts = [
   },
 ];
 
-export const stats = [
-  { value: "10+", label: "Projects" },
-  { value: "25+", label: "Blog Posts" },
-  { value: "20+", label: "Years of Code" },
-];
+export const statConfig = {
+  githubUsername: "kaiwood",
+  projectFallbackCount: 22,
+  yearsOfCode: 20,
+};

@@ -2,15 +2,24 @@
 import BlogCard from "../components/BlogCard.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { posts, projects, stats } from "../data/site";
-import { fetchGithubStars } from "../lib/github";
+import { posts, projects, statConfig } from "../data/site";
+import { fetchGithubPublicRepoCount, fetchGithubStars } from "../lib/github";
 
-const featuredProjects = await Promise.all(
-  projects.map(async (project) => ({
-    ...project,
-    stars: await fetchGithubStars(project.repo, project.stars),
-  })),
-);
+const [featuredProjects, publicProjectCount] = await Promise.all([
+  Promise.all(
+    projects.map(async (project) => ({
+      ...project,
+      stars: await fetchGithubStars(project.repo, project.stars),
+    })),
+  ),
+  fetchGithubPublicRepoCount(statConfig.githubUsername, statConfig.projectFallbackCount),
+]);
+
+const stats = [
+  { value: `${publicProjectCount}+`, label: "Projects" },
+  { value: `${posts.length}+`, label: "Blog Posts" },
+  { value: `${statConfig.yearsOfCode}+`, label: "Years of Code" },
+];
 
 const digitSegments: Record<string, string[]> = {
   "0": ["a", "b", "c", "d", "e", "f"],
@@ -116,13 +125,14 @@ const smokeParticles = Array.from({ length: 42 }, (_, index) => {
       <div class="stats" aria-label="Developer stats">
         {stats.map((stat) => {
           const digits = stat.value.match(/\d/g) ?? [];
+          const displayDigits = digits.length === 1 ? ["0", ...digits] : digits;
           const suffix = stat.value.replace(/[\d\s]/g, "");
 
           return (
             <div class="stat">
               <strong aria-label={stat.value}>
-                <span class="clock-digits" data-target={digits.join("")} aria-hidden="true">
-                  {digits.map((digit) => (
+                <span class="clock-digits" data-target={displayDigits.join("")} aria-hidden="true">
+                  {displayDigits.map((digit) => (
                     <span class="clock-digit" data-digit={digit}>
                       {digitSegmentNames.map((segment) => (
                         <span
