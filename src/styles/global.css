@@ -479,6 +479,11 @@
     font-weight: 900;
   }
 
+  .project-icon img {
+    width: 1.65rem;
+    height: 1.65rem;
+  }
+
   .project-icon.green,
   .post-icon.green {
     color: #22c55e;
