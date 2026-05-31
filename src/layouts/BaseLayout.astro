@@ -1,0 +1,55 @@
+---
+import SiteFooter from "../components/SiteFooter.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+  currentPath?: string;
+}
+
+const {
+  title = "kaiwood — Developer, blogger, builder",
+  description = "Developer self-marketing page and blog for tools, projects, and development notes.",
+  currentPath = Astro.url.pathname,
+} = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem("theme");
+        const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = stored || preferred;
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="site-shell">
+      <SiteHeader currentPath={currentPath} />
+      <main>
+        <slot />
+      </main>
+      <SiteFooter />
+    </div>
+
+    <script>
+      const themeToggle = document.querySelector<HTMLButtonElement>("[data-theme-toggle]");
+
+      themeToggle?.addEventListener("click", () => {
+        const current = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.dataset.theme = next;
+        localStorage.setItem("theme", next);
+      });
+    </script>
+  </body>
+</html>

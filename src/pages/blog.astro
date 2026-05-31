@@ -1,0 +1,35 @@
+---
+import BlogCard from "../components/BlogCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { posts } from "../data/site";
+
+const filters = ["All", "Tutorials", "Tools", "Thoughts", "News"];
+---
+
+<BaseLayout
+  title="Blog — kaiwood"
+  description="Thoughts, tutorials, and experiences about development and tools."
+  currentPath="/blog/"
+>
+  <section class="container section">
+    <div class="section-heading">
+      <div>
+        <h1>Blog</h1>
+        <p>Thoughts, tutorials, and experiences about development and tools.</p>
+      </div>
+    </div>
+
+    <div class="blog-controls" aria-label="Blog controls">
+      <div class="filter-list" aria-label="Post categories">
+        {filters.map((filter, index) => (
+          <button class={`filter ${index === 0 ? "active" : ""}`} type="button">{filter}</button>
+        ))}
+      </div>
+      <input class="search" type="search" placeholder="Search posts..." aria-label="Search posts" />
+    </div>
+
+    <div class="blog-list">
+      {posts.map((post) => <BlogCard post={post} />)}
+    </div>
+  </section>
+</BaseLayout>

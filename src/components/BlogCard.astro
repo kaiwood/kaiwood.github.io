@@ -1,0 +1,29 @@
+---
+interface Post {
+  title: string;
+  description: string;
+  date: string;
+  category: string;
+  readTime: string;
+  icon: string;
+}
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+---
+
+<article class="card post-card">
+  <time class="post-date" datetime={post.date}>{post.date}</time>
+  <div class="post-content">
+    <h3>{post.title}</h3>
+    <p>{post.description}</p>
+    <div class="post-meta">
+      <span class="tag">{post.category}</span>
+      <span class="read-time">{post.readTime}</span>
+    </div>
+  </div>
+  <div class="post-icon" aria-hidden="true">{post.icon}</div>
+</article>
