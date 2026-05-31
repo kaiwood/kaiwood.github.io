@@ -471,6 +471,12 @@
     min-height: 15rem;
     padding: 1.25rem;
     gap: 1rem;
+    transition: transform 160ms ease, border-color 160ms ease;
+  }
+
+  .project-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent);
   }
 
   .project-card footer {

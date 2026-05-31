@@ -4,6 +4,7 @@ interface Project {
   description: string;
   tags: string[];
   repo: string;
+  url: string;
   stars: number;
   icon: string;
   logo?: string;
@@ -17,7 +18,7 @@ interface Props {
 const { project } = Astro.props;
 ---
 
-<article class="card project-card">
+<a class="card project-card" href={project.url} target="_blank" rel="noreferrer">
   <div class={`project-icon ${project.accent ?? ""}`} aria-hidden="true">
     {project.logo ? <img src={project.logo} alt="" loading="lazy" /> : project.icon}
   </div>
@@ -40,7 +41,7 @@ const { project } = Astro.props;
       <span class="star-count" data-star-count>{project.stars}</span>
     </span>
   </footer>
-</article>
+</a>
 
 <script>
   const fetchStars = async (repo) => {
