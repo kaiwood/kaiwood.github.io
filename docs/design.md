@@ -13,36 +13,33 @@ Extracted from the supplied light and dark theme design guides.
 
 ### Shared
 
-| Token       | Hex       | Usage                                                   |
-| ----------- | --------- | ------------------------------------------------------- |
-| Blue accent | `#2563EB` | Primary buttons, links, focus states, active navigation |
-| Dark navy   | `#0F172A` | Dark background / light text                            |
-| Slate       | `#334155` | Secondary text, borders in dark theme                   |
-| Muted slate | `#64748B` | Captions and subdued UI                                 |
+| Token | Hex | Usage |
+| --- | --- | --- |
+| Primary | `#4F7DF3` | Primary buttons, links, focus states, active navigation |
 
 ### Light Theme
 
-| Token      | Hex       | Usage                                 |
-| ---------- | --------- | ------------------------------------- |
-| Background | `#F8FAFC` | Page background                       |
-| Surface    | `#FFFFFF` | Cards, header, forms                  |
-| Text       | `#0F172A` | Headings and primary copy             |
-| Secondary  | `#334155` | Body copy                             |
-| Muted      | `#64748B` | Captions, metadata, inactive controls |
-| Border     | `#E0E5F0` | Subtle dividers and card borders      |
-| Accent     | `#2563EB` | Calls to action and selected states   |
+| Token | Hex | Usage |
+| --- | --- | --- |
+| Background | `#F7F6F3` | Page background |
+| Surface | `#FFFFFF` | Cards, header, forms |
+| Text | `#1B2430` | Headings and primary copy |
+| Muted text | `#667085` | Body copy, metadata, inactive controls |
+| Primary hover | `#4553E6` | Primary button hover state |
+| Border | `#E5E7EB` | Subtle dividers and card borders |
+| Code background | `#F3F5F8` | Code blocks and muted surfaces |
 
 ### Dark Theme
 
-| Token      | Hex                   | Usage                               |
-| ---------- | --------------------- | ----------------------------------- |
-| Background | `#0F172A`             | Page background                     |
-| Surface    | `#111827` / `#111C2F` | Cards and raised content            |
-| Text       | `#E2E8F0`             | Headings and primary copy           |
-| Secondary  | `#CBD5E1`             | Body copy                           |
-| Muted      | `#64748B` / `#94A3B8` | Captions and metadata               |
-| Border     | `#334155`             | Subtle dividers and card outlines   |
-| Accent     | `#2563EB`             | Calls to action and selected states |
+| Token | Hex | Usage |
+| --- | --- | --- |
+| Background | `#0D1117` | Page background |
+| Surface | `#151B23` | Cards, header, raised content |
+| Text | `#E6EDF3` | Headings and primary copy |
+| Muted text | `#9AA4B2` | Body copy, metadata, inactive controls |
+| Primary hover | `#7D86FF` | Primary button hover state |
+| Border | `#2D3642` | Subtle dividers and card outlines |
+| Code background | `#0B1220` | Code blocks and muted surfaces |
 
 ## Typography
 
