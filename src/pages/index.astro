@@ -235,6 +235,8 @@ const smokeParticles = Array.from({ length: 42 }, (_, index) => {
 
       renderStatValue(display, current, false);
 
+      if (target <= 0) return;
+
       const tick = () => {
         current += 1;
         renderStatValue(display, current, true);
